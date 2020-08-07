@@ -1,0 +1,28 @@
+body {
+    font-family: "Helvetica", sans-serif;
+}
+
+#main {
+    display: flex;
+    justify-content: center;
+}
+
+#inputUrlDiv {
+    text-align: center;
+}
+
+#urlInput {
+    text-align: center;
+    border-radius: 10px;
+    border-color: black;
+}
+
+#urlInput:focus {
+    outline: none;
+}
+
+#controlButtons {
+    padding: 0 0 0 0;
+    display: flex;
+    align-items: center;
+}
