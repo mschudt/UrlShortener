@@ -11,6 +11,10 @@ const start = async () => {
     }
 }
 
+fastify.register(require('fastify-static'), {
+    root: path.join(__dirname)
+})
+
 const URL_PREFIX = "http://localhost:3001/"
 const ID_LENGTH = 5;
 const ID_LIFETIME = 2 * 60 * 1000; // delete saved urls after that many milliseconds
@@ -46,20 +50,34 @@ const loadSourceFile = (filename) => {
 }
 
 const renderUnsuccessfulPage = () => {
-    return loadSourceFile("invalid.html");
+    return loadSourceFile("top.html")
+        + loadSourceFile("invalid.html")
+        + loadSourceFile("bottom.html");
 }
 
 const renderIdNotFoundPage = () => {
-    return loadSourceFile("notfound.html");
+    return loadSourceFile("top.html")
+        + loadSourceFile("notfound.html")
+        + loadSourceFile("bottom.html");
 }
 
 const renderSuccessfulPage = (createdId) => {
-    return "Shortened URL to " + URL_PREFIX + createdId;
+    const shortenedUrl = URL_PREFIX + createdId;
+    return loadSourceFile("top.html")
+        + `<p>Successfully created shortend link</p><div><input type="text" value="${shortenedUrl}"/></div><br/>`
+        + `<p>Shorten another URL</p>`
+        + loadSourceFile("bottom.html");
+}
+
+const renderStartingPage = () => {
+    return loadSourceFile("top.html")
+        + loadSourceFile("start.html")
+        + loadSourceFile("bottom.html");
 }
 
 fastify.get("/create", (request, reply) => {
-    reply.type("text/html");
     const url = request.query.url;
+    reply.type("text/html");
     // check if the url was valid
     if (url === undefined || !(url.startsWith("http://") || url.startsWith("https://"))) {
         reply.send(renderUnsuccessfulPage());
@@ -79,23 +97,24 @@ fastify.get("/:id", tryRedirectionToUrlWithId);
 
 // show start page if no url id was passed
 fastify.get("/", (request, reply) => {
-    reply.type("text/html")
-        .send(loadSourceFile("index.html"));
+    reply.type("text/html");
+    reply.send(renderStartingPage());
 });
 
-fastify.post("/", (request, reply) => {
-    console.log(request.params);
-
-    if (request.params.newId === undefined) {
-        reply.type("text/html")
-            .send(loadSourceFile("index.html"));
-
-    } else {
-        console.log("newId passed: " + request.params.newId);
-        reply.type("text/html")
-            .send(loadSourceFile("top.html"));
-    }
-});
+// fastify.post("/", (request, reply) => {
+//     reply.type("text/html");
+//     console.log(request.params);
+//
+//     if (request.params.newId === undefined) {
+//         console.log("no newId passed");
+//         reply.send(renderStartingPage());
+//
+//     } else {
+//         console.log("newId passed: " + request.params.newId);
+//         reply.send(renderSuccessfulPage(request.params.newId));
+//     }
+//
+// });
 
 // register url cleanup timer that deletes urls
 // run that check every 3 seconds
