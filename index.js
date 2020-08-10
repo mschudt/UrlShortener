@@ -45,7 +45,7 @@ const tryRedirectionToUrlWithId = (request, reply) => {
 }
 
 const loadSourceFile = (filename) => {
-    // build filepath and read in file as a file synchronously
+    // build filepath and read in file as a string synchronously
     return fs.readFileSync(path.join(__dirname, filename), {encoding: "utf8"});
 }
 
