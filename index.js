@@ -7,7 +7,7 @@ const start = async () => {
     try {
         await fastify.listen(Config.PORT, Config.HOSTNAME);
     } catch (err) {
-        console.log(err);
+        console.error(err);
         process.exit(1);
     }
 }
@@ -22,13 +22,11 @@ const idToUrlObjectsMap = {};
 const cleanupUrls = () => {
     let counter = 0;
     for (const [id, urlObj] of Object.entries(idToUrlObjectsMap)) {
-        console.log(urlObj);
         if (Date.now() - urlObj.createdAt >= Config.ID_LIFETIME) {
             delete idToUrlObjectsMap[id];
             counter++;
         }
     }
-    // console.log("Cleaned up " + counter + " urls.")
 }
 
 
