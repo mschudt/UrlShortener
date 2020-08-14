@@ -5,7 +5,7 @@ const HtmlRenderer = require("./render");
 
 const start = async () => {
     try {
-        await fastify.listen(Config.PORT, Config.HOSTNAME);
+        await fastify.listen(Config.PORT, "0.0.0.0");
     } catch (err) {
         console.error(err);
         process.exit(1);
