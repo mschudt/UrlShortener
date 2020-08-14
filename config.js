@@ -1,6 +1,8 @@
 // hostname and port can be passed as cli args
 // default is set to the ip address of the eth0 network interface
 let HOSTNAME = process.argv[2] || require("os").networkInterfaces().eth0[0].address;
+// append "http://" to the start of the hostname if it's missing
+HOSTNAME = HOSTNAME.startsWith("http://") ? HOSTNAME : "http://" + HOSTNAME;
 // append "/" if it is missing
 HOSTNAME = HOSTNAME.endsWith("/") ? HOSTNAME : HOSTNAME + "/";
 
