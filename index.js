@@ -28,7 +28,7 @@ const cleanupUrls = () => {
             counter++;
         }
     }
-    console.log("Cleaned up " + counter + " urls.")
+    // console.log("Cleaned up " + counter + " urls.")
 }
 
 
