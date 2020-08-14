@@ -1,6 +1,9 @@
 // hostname and port can be passed as cli args
 // default is set to the ip address of the eth0 network interface
-const HOSTNAME = process.argv[2] || require("os").networkInterfaces().eth0[0].address;
+let HOSTNAME = process.argv[2] || require("os").networkInterfaces().eth0[0].address;
+// append "/" if it is missing
+HOSTNAME = HOSTNAME.endsWith("/") ? HOSTNAME : HOSTNAME + "/";
+
 const PORT = process.argv[3] || "3001";
 
 // parameter length of the shortened url
