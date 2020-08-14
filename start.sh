@@ -1,2 +1,2 @@
 #!/bin/bash
-screen -L -S url node index.js
+screen -L -S url node index.js $@
