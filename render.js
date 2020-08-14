@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const Config = require("./config");
 
 const loadSourceFile = (filename) => {
     // build filepath and read in file as a string synchronously
@@ -19,7 +20,7 @@ const renderIdNotFoundPage = () => {
 }
 
 const renderSuccessfulPage = (createdId) => {
-    const shortenedUrl = URL_PREFIX + createdId;
+    const shortenedUrl = Config.HOSTNAME + createdId;
     return loadSourceFile("top.html")
         + `<p>Successfully created shortend link</p><div><input type="text" value="${shortenedUrl}"/></div><br/>`
         + `<p>Shorten another URL</p>`
