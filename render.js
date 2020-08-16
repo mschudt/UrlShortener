@@ -9,13 +9,14 @@ const loadSourceFile = (filename) => {
 
 const renderUnsuccessfulPage = () => {
     return loadSourceFile("top.html")
-        + loadSourceFile("invalid.html")
+        + `<p>Please enter a valid URL!</p>`
         + loadSourceFile("bottom.html");
 }
 
 const renderIdNotFoundPage = () => {
     return loadSourceFile("top.html")
-        + loadSourceFile("notfound.html")
+        + `<p>I'm sorry. We could not find that URL.</p>`
+        + `<p>Enter a new URL to shorten</p>`
         + loadSourceFile("bottom.html");
 }
 
@@ -29,7 +30,7 @@ const renderSuccessfulPage = (createdId) => {
 
 const renderStartingPage = () => {
     return loadSourceFile("top.html")
-        + loadSourceFile("start.html")
+        + `<p>Please enter a URL to shorten</p>`
         + loadSourceFile("bottom.html");
 }
 
