@@ -16,6 +16,14 @@ body {
     width: 10ch;
 }
 
+#redirectBtn:hover {
+    background-color: #e4ebf7;
+}
+
+#redirectBtn:active {
+    background-color: #d2dcec;;
+}
+
 input {
     font-size: 70%;
     text-align: center;
