@@ -1,75 +1,70 @@
-const fastify = require("fastify")();
+const express = require("express");
 const path = require("path");
+
 const Config = require("./config");
 const HtmlRenderer = require("./render");
 
-const start = async () => {
-    try {
-        await fastify.listen(Config.PORT, "0.0.0.0");
-    } catch (err) {
-        console.error(err);
-        process.exit(1);
-    }
-}
-
-fastify.register(require('fastify-static'), {
-    root: path.join(__dirname)
-})
-
+const app = express();
 
 const idToUrlObjectsMap = {};
 
 const cleanupUrls = () => {
+    const currentMillis = Date.now();
     let counter = 0;
     for (const [id, urlObj] of Object.entries(idToUrlObjectsMap)) {
-        if (Date.now() - urlObj.createdAt >= Config.ID_LIFETIME) {
+        if (currentMillis - urlObj.createdAt >= Config.ID_LIFETIME) {
             delete idToUrlObjectsMap[id];
             counter++;
         }
     }
 }
 
+app.use(express.static("static"));
 
-fastify.get("/create", (request, reply) => {
-    const url = request.query.url;
-    reply.type("text/html");
+app.get("/create", (req, res) => {
+    const url = req.query.url;
+    res.set("Content-Type", "text/html");
     // check if the url was valid
     if (url === undefined || !(url.startsWith("http://") || url.startsWith("https://"))) {
-        reply.send(HtmlRenderer.renderUnsuccessfulPage());
+        res.send(HtmlRenderer.renderUnsuccessfulPage());
         return;
     }
 
     // generate random string of wanted id length
     const randomId = Math.random().toString(36).substring(Config.ID_LENGTH + 3);
     // save id -> url object relation in map
-    idToUrlObjectsMap[randomId] = {url: request.query.url, createdAt: Date.now()};
+    idToUrlObjectsMap[randomId] = {url: req.query.url, createdAt: Date.now()};
 
-    reply.send(HtmlRenderer.renderSuccessfulPage(randomId));
+    res.send(HtmlRenderer.renderSuccessfulPage(randomId));
 });
 
 // try redirect if an url id was passed
-fastify.get("/:id", (request, reply) => {
-        if (idToUrlObjectsMap[request.params.id] === undefined) {
+app.get("/:id", (req, res) => {
+        if (idToUrlObjectsMap[req.params.id] === undefined) {
             // render the invalid id page if the id was not found
-            reply.type("text/html").send(HtmlRenderer.renderIdNotFoundPage());
+            res.set("Content-Type", "text/html");
+            res.send(HtmlRenderer.renderIdNotFoundPage());
         } else {
             // redirect to target page if it was found
-            reply.redirect(idToUrlObjectsMap[request.params.id].url);
+            res.redirect(idToUrlObjectsMap[req.params.id].url);
             // delete id -> url relation after a successful redirect
-            delete idToUrlObjectsMap[request.params.id];
+            delete idToUrlObjectsMap[req.params.id];
         }
     }
 );
 
 // show start page if no url id was passed
-fastify.get("/", (request, reply) => {
-    reply.type("text/html");
-    reply.send(HtmlRenderer.renderStartingPage());
-});
+app.get("/", (req, res) => {
+    res.set("Content-Type", "text/html");
+    res.send(HtmlRenderer.renderStartingPage());
+
+})
 
 // register url cleanup timer that deletes urls
 // run that check every 3 seconds
 setInterval(cleanupUrls, 5 * 1000);
 
-// start fastify application server
-start();
+// start express application server
+app.listen(Config.PORT, () => {
+    console.log(`Express server listing on port ${Config.PORT}`);
+});

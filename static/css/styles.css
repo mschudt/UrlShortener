@@ -11,13 +11,13 @@ body {
     text-align: center;
 }
 
-#urlInput {
+input[type=text] {
     text-align: center;
     border-radius: 10px;
     border-color: black;
 }
 
-#urlInput:focus {
+input[type=text]:focus {
     outline: none;
 }
 

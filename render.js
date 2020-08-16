@@ -4,7 +4,7 @@ const Config = require("./config");
 
 const loadSourceFile = (filename) => {
     // build filepath and read in file as a string synchronously
-    return fs.readFileSync(path.join(__dirname, "html", filename), {encoding: "utf8"});
+    return fs.readFileSync(path.join(__dirname, "static", "html", filename), {encoding: "utf8"});
 }
 
 const renderUnsuccessfulPage = () => {
