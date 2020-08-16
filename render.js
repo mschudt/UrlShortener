@@ -7,35 +7,39 @@ const loadSourceFile = (filename) => {
     return fs.readFileSync(path.join(__dirname, "static", "html", filename), {encoding: "utf8"});
 }
 
+// load html chunks into RAM to eliminate disk reads on each request
+const topHtml = loadSourceFile("top.html");
+const bottomHtml = loadSourceFile("bottom.html");
+
 const renderUnsuccessfulPage = () => {
-    return loadSourceFile("top.html")
+    return topHtml
         + `<p>Please enter a valid URL!</p>`
-        + loadSourceFile("bottom.html");
+        + bottomHtml;
 }
 
 const renderIdNotFoundPage = () => {
-    return loadSourceFile("top.html")
+    return topHtml
         + `<p>I'm sorry. We could not find that URL.</p>`
         + `<p>Enter a new URL to shorten</p>`
-        + loadSourceFile("bottom.html");
+        + bottomHtml;
 }
 
 const renderSuccessfulPage = (createdId) => {
     const shortenedUrl = Config.HOSTNAME + createdId;
-    return loadSourceFile("top.html")
+    return topHtml
         + `<p>Successfully created shortend link</p><div><input type="text" size="${shortenedUrl.length - 5}ch" value="${shortenedUrl}"/></div><br/>`
         + `<p>Shorten another URL</p>`
-        + loadSourceFile("bottom.html");
+        + bottomHtml;
 }
 
 const renderStartingPage = () => {
-    return loadSourceFile("top.html")
+    return topHtml
         + `<p>Please enter a URL to shorten</p>`
-        + loadSourceFile("bottom.html");
+        + bottomHtml;
 }
 
 const renderRawUrlPage = (resolvedUrl) => {
-    return loadSourceFile("top.html")
+    return topHtml
         + `<p>You will be redirected to the following URL</p>`
         + `<p><input type="text" size="${resolvedUrl.length - 5}ch" value="${resolvedUrl}"/></p>`
         + `<p><a href="${resolvedUrl}"><input id="redirectBtn" type="button" value="Redirect"/></a></p>`;
