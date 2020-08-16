@@ -35,6 +35,7 @@ const renderStartingPage = () => {
 
 const renderRawUrlPage = (resolvedUrl) => {
     return loadSourceFile("top.html")
+        + `<p>You will be redirected to the following URL</p>`
         + `<p><input type="text" size="${resolvedUrl.length - 5}ch" value="${resolvedUrl}"/></p>`
         + `<p><a href="${resolvedUrl}"><input id="redirectBtn" type="button" value="Redirect"/></a></p>`;
 }
