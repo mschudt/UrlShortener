@@ -22,7 +22,7 @@ const renderIdNotFoundPage = () => {
 const renderSuccessfulPage = (createdId) => {
     const shortenedUrl = Config.HOSTNAME + createdId;
     return loadSourceFile("top.html")
-        + `<p>Successfully created shortend link</p><div><input type="text" value="${shortenedUrl}"/></div><br/>`
+        + `<p>Successfully created shortend link</p><div><input type="text" size="${shortenedUrl.length - 5}ch" value="${shortenedUrl}"/></div><br/>`
         + `<p>Shorten another URL</p>`
         + loadSourceFile("bottom.html");
 }
@@ -33,9 +33,16 @@ const renderStartingPage = () => {
         + loadSourceFile("bottom.html");
 }
 
+const renderRawUrlPage = (resolvedUrl) => {
+    return loadSourceFile("top.html")
+        + `<p><input type="text" size="${resolvedUrl.length - 5}ch" value="${resolvedUrl}"/></p>`
+        + `<p><a href="${resolvedUrl}"><input style="width: 10ch" type="button" value="Redirect"/></a></p>`;
+}
+
 module.exports = {
     renderUnsuccessfulPage,
     renderIdNotFoundPage,
     renderSuccessfulPage,
-    renderStartingPage
+    renderStartingPage,
+    renderRawUrlPage
 }

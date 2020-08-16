@@ -19,6 +19,8 @@ const cleanupUrls = () => {
     }
 }
 
+// serve static files in the /static directory
+// mainly html and css files
 app.use(express.static("static"));
 
 app.get("/create", (req, res) => {
@@ -53,11 +55,23 @@ app.get("/:id", (req, res) => {
     }
 );
 
+app.get("/:id/raw", (req, res) => {
+    if (idToUrlObjectsMap[req.params.id] === undefined) {
+        // render the invalid id page if the id was not found
+        res.set("Content-Type", "text/html");
+        res.send(HtmlRenderer.renderIdNotFoundPage());
+
+    } else {
+        const resolvedUrl = idToUrlObjectsMap[req.params.id].url;
+        res.set("Content-Type", "text/html");
+        res.send(HtmlRenderer.renderRawUrlPage(resolvedUrl));
+    }
+});
+
 // show start page if no url id was passed
 app.get("/", (req, res) => {
     res.set("Content-Type", "text/html");
     res.send(HtmlRenderer.renderStartingPage());
-
 })
 
 // register url cleanup timer that deletes urls
