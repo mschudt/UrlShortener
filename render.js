@@ -36,7 +36,7 @@ const renderStartingPage = () => {
 const renderRawUrlPage = (resolvedUrl) => {
     return loadSourceFile("top.html")
         + `<p><input type="text" size="${resolvedUrl.length - 5}ch" value="${resolvedUrl}"/></p>`
-        + `<p><a href="${resolvedUrl}"><input style="width: 10ch" type="button" value="Redirect"/></a></p>`;
+        + `<p><a href="${resolvedUrl}"><input id="redirectBtn" type="button" value="Redirect"/></a></p>`;
 }
 
 module.exports = {
