@@ -1,6 +1,6 @@
 {
   "name": "privacy_urlshortener",
-  "version": "1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node index.js"
