@@ -3,10 +3,6 @@ body {
     font-size: 180%;
 }
 
-#main {
-    display: flex;
-    justify-content: center;
-}
 
 #mainDiv {
     text-align: center;

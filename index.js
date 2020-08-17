@@ -1,4 +1,5 @@
 const express = require("express");
+const helmet = require("helmet");
 const path = require("path");
 
 const Config = require("./config");
@@ -22,6 +23,9 @@ const cleanupUrls = () => {
 // serve static files in the /static directory
 // mainly html and css files
 app.use(express.static("static"));
+
+// secure express aganst a lot of common vunerabilities
+app.use(helmet());
 
 app.get("/create", (req, res) => {
     const url = req.query.url;
