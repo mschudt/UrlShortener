@@ -20,11 +20,30 @@ body {
     background-color: #d2dcec;;
 }
 
+#removeAfterDropdownMenu {
+    font-size: 70%;
+    text-align: center;
+    padding-left: 2px;
+    border-radius: 10em;
+    background-color: white;
+    border-width: 2px;
+    border-color: black;
+}
+
+#dropDownMenuLabel {
+    font-size: 70%;
+}
+
+
+#removeAfterDropdownMenu:focus {
+    outline: none;
+}
+
 input {
     font-size: 70%;
     text-align: center;
-    border-radius: 10em;
     border-color: black;
+    border-radius: 10em;
 }
 
 input:focus {

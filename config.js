@@ -17,11 +17,11 @@ const PORT = process.argv[3] || "3001";
 const ID_LENGTH = 5;
 
 // delete saved urls after that many milliseconds
-const ID_LIFETIME = 2 * 60 * 1000;
+const ID_LIFETIMES = [2, 5, 10, 30];
 
 module.exports = {
     HOSTNAME,
     PORT,
     ID_LENGTH,
-    ID_LIFETIME
+    ID_LIFETIMES
 }
