@@ -27,7 +27,7 @@ const renderIdNotFoundPage = () => {
 const renderSuccessfulPage = (createdId) => {
     const shortenedUrl = Config.HOSTNAME + createdId;
     return topHtml
-        + `<p>Successfully created shortend link</p><div><input type="text" size="${shortenedUrl.length}ch" value="${shortenedUrl}"/></div><br/>`
+        + `<p>Successfully created shortend link</p><div><input type="text" size="${shortenedUrl.length}ch" value="${shortenedUrl}"/></div>`
         + `<p>Shorten another URL</p>`
         + bottomHtml;
 }
