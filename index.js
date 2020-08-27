@@ -20,11 +20,11 @@ const cleanupUrls = () => {
     }
 }
 
-// serve static files in the /static directory
-// mainly html and css files
+// Serve static files in the /static directory
+// Mainly html and css files
 app.use(express.static("static"));
 
-// secure express aganst a lot of common vunerabilities
+// Secure express aganst a lot of common vunerabilities
 app.use(helmet());
 
 app.get("/create", (req, res) => {
@@ -32,65 +32,85 @@ app.get("/create", (req, res) => {
     const removeAfter = parseInt(req.query.removeAfter);
 
     res.set("Content-Type", "text/html");
-    // check if the url was valid
+    // Check if the url was valid
     if (url === undefined || !(url.startsWith("http://") || url.startsWith("https://"))) {
         res.send(HtmlRenderer.renderUnsuccessfulPage());
         return;
-        // check if removeAfter parameter was set and is a valid number
+        // Check if removeAfter parameter was set and is a valid number
     } else if (!Config.ID_LIFETIMES.includes(removeAfter)) {
         res.send(HtmlRenderer.renderUnsuccessfulPage());
         return;
     }
 
-    // generate random string of wanted id length
+    // If the removeAfterRedirect checkbox was checked the link will be removed
+    // after one successful redirect. If not, the link will stay until its timeout is reached.
+    let removeAfterRedirect = false;
+    if (req.query.removeAfterRedirect === "true") {
+        removeAfterRedirect = true;
+    }
+
+    // Generate random string of wanted id length
     const randomId = Math.random().toString(36).substring(2, Config.ID_LENGTH + 1);
-    // save id -> url object relation in map
+    // Save id -> url object relation in map
     // removeAfter is passed to the backend in minutes so we have to convert it to millis
     // to compare with the current time later
-    idToUrlObjectsMap[randomId] = {url: req.query.url, createdAt: Date.now(), removeAfter: removeAfter * 60 * 1000};
+    idToUrlObjectsMap[randomId] = {
+        url: req.query.url,
+        createdAt: Date.now(),
+        removeAfter: removeAfter * 60 * 1000,
+        removeAfterRedirect: removeAfterRedirect
+    };
 
     res.send(HtmlRenderer.renderSuccessfulPage(randomId));
 });
 
-// try redirect if an url id was passed
+// Try redirect if an url id was passed
 app.get("/:id", (req, res) => {
-        if (idToUrlObjectsMap[req.params.id] === undefined) {
-            // render the invalid id page if the id was not found
+        // Url object with the passed id
+        const urlObject = idToUrlObjectsMap[req.params.id];
+        if (urlObject === undefined) {
+            // Render the invalid id page if the id was not found
             res.set("Content-Type", "text/html");
             res.send(HtmlRenderer.renderIdNotFoundPage());
         } else {
-            // redirect to target page if it was found
-            res.redirect(idToUrlObjectsMap[req.params.id].url);
-            // delete id -> url relation after a successful redirect
-            delete idToUrlObjectsMap[req.params.id];
+            // Redirect to target page if it was found
+            res.redirect(urlObject.url);
+
+            // If the removeAftereRedirect boolean is set, the url will be removed after one successful redirect.
+            if (urlObject.removeAfterRedirect) {
+                delete idToUrlObjectsMap[req.params.id];
+            }
         }
     }
 );
 
 app.get("/:id/raw", (req, res) => {
-    if (idToUrlObjectsMap[req.params.id] === undefined) {
-        // render the invalid id page if the id was not found
+    // Url object with the passed id
+    const urlObject = idToUrlObjectsMap[req.params.id];
+
+    if (urlObject === undefined) {
+        // Render the invalid id page if the id was not found
         res.set("Content-Type", "text/html");
         res.send(HtmlRenderer.renderIdNotFoundPage());
 
     } else {
-        const resolvedUrl = idToUrlObjectsMap[req.params.id].url;
+        const resolvedUrl = urlObject.url;
         res.set("Content-Type", "text/html");
-        res.send(HtmlRenderer.renderRawUrlPage(resolvedUrl));
+        res.send(HtmlRenderer.renderRawUrlPage(resolvedUrl, req.params.id, urlObject.removeAfterRedirect));
     }
 });
 
-// show start page if no url id was passed
+// Show start page if no url id was passed
 app.get("/", (req, res) => {
     res.set("Content-Type", "text/html");
     res.send(HtmlRenderer.renderStartingPage());
 })
 
-// register url cleanup timer that deletes urls
-// run that check every 3 seconds
+// Register url cleanup timer that deletes urls
+// and run that check every 5 seconds
 setInterval(cleanupUrls, 5 * 1000);
 
-// start express application server
+// Start express application server
 app.listen(Config.PORT, () => {
     console.log(`Express server listing on port ${Config.PORT}`);
 });

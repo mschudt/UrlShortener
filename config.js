@@ -5,13 +5,14 @@ if (HOSTNAME === undefined) {
     process.exit();
 }
 
-// append "https://" to the start of the hostname if it's missing
-HOSTNAME = HOSTNAME.startsWith("https://") ? HOSTNAME : "https://" + HOSTNAME;
-// append "/" if it is missing
+// prepend https:// to the hostname if the passed hostname doesn't
+// start with http:// or https://
+HOSTNAME = HOSTNAME.startsWith("https://") || HOSTNAME.startsWith("http://") ? HOSTNAME : "https://" + HOSTNAME;
+// append a / to the end of the hostname if it is missing
 HOSTNAME = HOSTNAME.endsWith("/") ? HOSTNAME : HOSTNAME + "/";
 
 // port can be passed as the second cli arg
-const PORT = process.argv[3] || "3001";
+const PORT = process.argv[3] || 3001;
 
 // parameter length of the shortened url
 const ID_LENGTH = 5;

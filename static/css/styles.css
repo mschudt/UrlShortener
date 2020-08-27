@@ -1,42 +1,12 @@
+/* blue #3478e5 */
+/* light blue #9fbae3 */
 body {
     font-family: "Helvetica", sans-serif;
     font-size: 180%;
 }
 
-
 #mainDiv {
     text-align: center;
-}
-
-#redirectBtn {
-    width: 10ch;
-}
-
-#redirectBtn:hover {
-    background-color: #e4ebf7;
-}
-
-#redirectBtn:active {
-    background-color: #d2dcec;;
-}
-
-#removeAfterDropdownMenu {
-    font-size: 70%;
-    text-align: center;
-    padding-left: 2px;
-    border-radius: 10em;
-    background-color: white;
-    border-width: 2px;
-    border-color: black;
-}
-
-#dropDownMenuLabel {
-    font-size: 70%;
-}
-
-
-#removeAfterDropdownMenu:focus {
-    outline: none;
 }
 
 input {
@@ -48,5 +18,47 @@ input {
 
 input:focus {
     outline: none;
+}
+
+#redirectBtn {
+    width: 10ch;
+}
+
+#redirectBtn:hover {
+    background-color: #e4ebf7;
+}
+
+#redirectBtn:active {
+    background-color: #d2dcec;
+}
+
+#removeAfterDiv {
+    margin-top: 0.8vw;
+}
+
+#removeAfterDropdownMenu {
+    font-size: 70%;
+    text-align: center;
+    padding-left: 4px;
+    border-radius: 10em;
+    background-color: white;
+    border-width: 2px;
+    border-color: black;
+}
+
+#removeAfterDropdownMenu:focus {
+    outline: none;
+}
+
+#removeAfterRedirectDiv {
+    margin-top: 0.8vw;
+}
+
+label {
+    font-size: 70%;
+}
+
+input[type=checkbox] {
+    transform: scale(1.5);
 }
 

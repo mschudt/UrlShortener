@@ -38,11 +38,24 @@ const renderStartingPage = () => {
         + bottomHtml;
 }
 
-const renderRawUrlPage = (resolvedUrl) => {
+const renderRawUrlPage = (resolvedUrl, shortenedUrlId, removeAfterRedirect) => {
+    let href;
+    // If the link should be removed after a redirect, we have to put the shortened url as the <a>'s href attribute.
+    // This is because otherwise we cannot (without using additional JavaScript) send a message to the server
+    // signalizing that the link should be deleted.
+    if (removeAfterRedirect) {
+        href = Config.HOSTNAME + shortenedUrlId;
+
+    } else {
+        // If the link should only be removed after the timeout has been reached, we can input the unshortened version
+        // as the href attribute
+        href = resolvedUrl;
+    }
+
     return topHtml
         + `<p>You will be redirected to the following URL</p>`
         + `<p><input type="text" size="${resolvedUrl.length}ch" value="${resolvedUrl}"/></p>`
-        + `<p><a href="${resolvedUrl}"><input id="redirectBtn" type="button" value="Redirect"/></a></p>`;
+        + `<a href="${href}"><input id="redirectBtn" type="button" value="Redirect"/></a>`;
 }
 
 module.exports = {

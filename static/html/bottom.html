@@ -1,12 +1,20 @@
 <form action="/create" method="GET">
-    <input id="urlInput" name="url" size="40" type="text"/>
-    <label id="dropDownMenuLabel" for="removeAfterDropdownMenu">Burn after</label>
-    <select id="removeAfterDropdownMenu" name="removeAfter">
-        <option value="2">2 minutes</option>
-        <option value="5">5 minutes</option>
-        <option value="10">10 minutes</option>
-        <option value="30">30 minutes</option>
-    </select>
+    <input id="urlInput" name="url" size="30%" type="text"/>
+    <div id="removeAfterDiv">
+        <label for="removeAfterDropdownMenu">Burn after</label>
+        <select id="removeAfterDropdownMenu" name="removeAfter">
+            <option value="2">2 minutes</option>
+            <option value="5">5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="30">30 minutes</option>
+        </select>
+    </div>
+    <div id="removeAfterRedirectDiv">
+        <input checked class="switch" id="removeAfterRedirectCheckbox" name="removeAfterRedirect" type="checkbox"
+               value="true">
+        <label id="removeAfterRedirectCheckboxLabel" for="removeAfterRedirectCheckbox">Remove link after
+            redirecting</label>
+    </div>
 </form>
 </div>
 </body>
