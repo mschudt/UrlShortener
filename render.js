@@ -1,6 +1,6 @@
-const fs = require("fs");
-const path = require("path");
-const Config = require("./config");
+import fs from "fs";
+import path from "path";
+import * as Config from "./config";
 
 const loadSourceFile = (filename) => {
     // build filepath and read in file as a string synchronously

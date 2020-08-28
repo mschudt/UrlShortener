@@ -3,10 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node index.js"
+    "build": "babel index.js -d dist",
+    "start": "npm run build && npm run serve",
+    "serve": "node dist/index.js"
   },
   "dependencies": {
     "express": "^4.17.1",
     "helmet": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.4",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.11.0"
   }
 }

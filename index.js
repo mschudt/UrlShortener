@@ -1,14 +1,13 @@
-const express = require("express");
-const helmet = require("helmet");
-const path = require("path");
+import express from "express";
+import helmet from "helmet";
+import path from "path";
+import * as Config from "./config";
+import * as HtmlRenderer from "./render";
 
-const Config = require("./config");
-const HtmlRenderer = require("./render");
 
 const app = express();
 
 const idToUrlObjectsMap = {};
-
 const cleanupUrls = () => {
     const currentMillis = Date.now();
     let counter = 0;

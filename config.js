@@ -24,7 +24,7 @@ const ID_LIFETIMES = [2, 5, 10, 30];
 // For all other values (including undefined), the assumed environment will be production.
 process.env.NODE_ENV = process.env.NODE_ENV === "development" ? "development" : "production";
 
-module.exports = {
+export {
     HOSTNAME,
     PORT,
     ID_LENGTH,
