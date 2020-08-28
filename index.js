@@ -3,21 +3,12 @@ import helmet from "helmet";
 import path from "path";
 import * as Config from "./config";
 import * as HtmlRenderer from "./render";
+import {StorageModule, DatabaseAccessor} from "./storage_module";
 
+const storageModule = new StorageModule(new DatabaseAccessor());
+storageModule.startGarbageCollection(10);
 
 const app = express();
-
-const idToUrlObjectsMap = {};
-const cleanupUrls = () => {
-    const currentMillis = Date.now();
-    let counter = 0;
-    for (const [id, urlObj] of Object.entries(idToUrlObjectsMap)) {
-        if (currentMillis - urlObj.createdAt >= urlObj.removeAfter) {
-            delete idToUrlObjectsMap[id];
-            counter++;
-        }
-    }
-}
 
 // Serve static files in the /static directory
 // Mainly html and css files
@@ -53,12 +44,7 @@ app.get("/create", (req, res) => {
     // Save id -> url object relation in map
     // removeAfter is passed to the backend in minutes so we have to convert it to millis
     // to compare with the current time later
-    idToUrlObjectsMap[randomId] = {
-        url: req.query.url,
-        createdAt: Date.now(),
-        removeAfter: removeAfter * 60 * 1000,
-        removeAfterRedirect: removeAfterRedirect
-    };
+    storageModule.store(randomId, req.query.url, removeAfter * 60 * 1000, removeAfterRedirect);
 
     res.send(HtmlRenderer.renderSuccessfulPage(randomId));
 });
@@ -66,18 +52,18 @@ app.get("/create", (req, res) => {
 // Try redirect if an url id was passed
 app.get("/:id", (req, res) => {
         // Url object with the passed id
-        const urlObject = idToUrlObjectsMap[req.params.id];
-        if (urlObject === undefined) {
+        const storedObject = storageModule.fetch(req.params.id);
+        if (storedObject === undefined) {
             // Render the invalid id page if the id was not found
             res.set("Content-Type", "text/html");
             res.send(HtmlRenderer.renderIdNotFoundPage());
         } else {
             // Redirect to target page if it was found
-            res.redirect(urlObject.url);
+            res.redirect(storedObject.content);
 
             // If the removeAftereRedirect boolean is set, the url will be removed after one successful redirect.
-            if (urlObject.removeAfterRedirect) {
-                delete idToUrlObjectsMap[req.params.id];
+            if (storedObject.destroyAfterUse) {
+                storageModule.remove(req.params.id);
             }
         }
     }
@@ -85,17 +71,17 @@ app.get("/:id", (req, res) => {
 
 app.get("/:id/raw", (req, res) => {
     // Url object with the passed id
-    const urlObject = idToUrlObjectsMap[req.params.id];
+    const storedObject = storageModule.fetch(req.params.id);
 
-    if (urlObject === undefined) {
+    if (storedObject === undefined) {
         // Render the invalid id page if the id was not found
         res.set("Content-Type", "text/html");
         res.send(HtmlRenderer.renderIdNotFoundPage());
 
     } else {
-        const resolvedUrl = urlObject.url;
+        const resolvedUrl = storedObject.content;
         res.set("Content-Type", "text/html");
-        res.send(HtmlRenderer.renderRawUrlPage(resolvedUrl, req.params.id, urlObject.removeAfterRedirect));
+        res.send(HtmlRenderer.renderRawUrlPage(resolvedUrl, req.params.id, storedObject.destroyAfterUse));
     }
 });
 
@@ -104,10 +90,6 @@ app.get("/", (req, res) => {
     res.set("Content-Type", "text/html");
     res.send(HtmlRenderer.renderStartingPage());
 })
-
-// Register url cleanup timer that deletes urls
-// and run that check every 5 seconds
-setInterval(cleanupUrls, 5 * 1000);
 
 // Start express application server
 app.listen(Config.PORT, () => {

@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "babel index.js -d dist",
-    "start": "npm run build && npm run serve",
+    "build": "babel index.js -d dist --ignore node_modules/*",
+    "start": "npx babel-node index.js",
+    "broken_start": "npm run build && npm run serve",
     "serve": "node dist/index.js"
   },
   "dependencies": {
