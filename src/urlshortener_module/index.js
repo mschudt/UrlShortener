@@ -12,7 +12,7 @@ const app = express();
 
 // Serve static files in the /static directory
 // Mainly html and css files
-app.use(express.static("static"));
+app.use(express.static("src/urlshortener_module/static"));
 
 // Secure express aganst a lot of common vunerabilities
 app.use(helmet());
