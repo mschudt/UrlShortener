@@ -3,7 +3,7 @@ import helmet from "helmet";
 import path from "path";
 import * as Config from "./config";
 import * as HtmlRenderer from "./render";
-import {StorageModule, DatabaseAccessor} from "./storage_module";
+import {StorageModule, DatabaseAccessor} from "../storage_module";
 
 const storageModule = new StorageModule(new DatabaseAccessor());
 storageModule.startGarbageCollection(10);

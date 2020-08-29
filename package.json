@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "babel index.js -d dist --ignore node_modules/*",
-    "start": "npx babel-node index.js",
-    "broken_start": "npm run build && npm run serve",
-    "serve": "node dist/index.js"
+    "build": "babel src -d dist --copy-files",
+    "serve": "node dist/urlshortener_module/index.js",
+    "start": "npm run build && npm run serve",
+    "start_babel_node": "npx babel-node src/urlshortener_module/index.js"
   },
   "dependencies": {
     "express": "^4.17.1",
