@@ -4,6 +4,7 @@ import path from "path";
 import * as Config from "./config";
 import * as HtmlRenderer from "./render";
 import {StorageModule, DatabaseAccessor} from "../storage_module";
+import {generateNewRandomId} from "./util";
 
 const storageModule = new StorageModule(new DatabaseAccessor());
 storageModule.startGarbageCollection(10);
@@ -40,7 +41,8 @@ app.get("/create", (req, res) => {
     }
 
     // Generate random string of wanted id length
-    const randomId = Math.random().toString(36).substring(2, Config.ID_LENGTH + 1);
+    const randomId = generateNewRandomId(Config.ID_LENGTH);
+
     // Save id -> url object relation in map
     // removeAfter is passed to the backend in minutes so we have to convert it to millis
     // to compare with the current time later
