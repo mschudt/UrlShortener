@@ -16,13 +16,13 @@ input {
     border-radius: 10em;
 }
 
+input:focus {
+    outline: none;
+}
+
 #urlInput {
     width: 80%;
     max-width: 380px;
-}
-
-input:focus {
-    outline: none;
 }
 
 #redirectBtn {
