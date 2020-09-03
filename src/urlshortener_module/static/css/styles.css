@@ -16,6 +16,11 @@ input {
     border-radius: 10em;
 }
 
+#urlInput {
+    width: 80%;
+    max-width: 380px;
+}
+
 input:focus {
     outline: none;
 }
