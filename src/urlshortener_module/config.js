@@ -17,8 +17,8 @@ const PORT = process.argv[3] || 3001;
 // parameter length of the shortened url
 const ID_LENGTH = 5;
 
-// delete saved urls after that many milliseconds
-const ID_LIFETIMES = [2, 5, 10, 30];
+// delete saved content after that many milliseconds
+const LIFETIMES = [2, 5, 10, 30];
 
 // Leave the NODE_ENV variable on "development" if it was set to that.
 // For all other values (including undefined), the assumed environment will be production.
@@ -28,5 +28,5 @@ export {
     HOSTNAME,
     PORT,
     ID_LENGTH,
-    ID_LIFETIMES
+    LIFETIMES
 }

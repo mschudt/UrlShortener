@@ -20,25 +20,21 @@ input:focus {
     outline: none;
 }
 
-#urlInput {
+#contentInput {
     width: 80%;
     max-width: 380px;
 }
 
-#redirectBtn {
+.button {
     width: 10ch;
 }
 
-#redirectBtn:hover {
+.button:hover {
     background-color: #e4ebf7;
 }
 
-#redirectBtn:active {
+.button:active {
     background-color: #d2dcec;
-}
-
-#removeAfterDiv {
-    margin-top: 0.8vw;
 }
 
 #removeAfterDropdownMenu {
@@ -55,7 +51,7 @@ input:focus {
     outline: none;
 }
 
-#removeAfterRedirectDiv {
+.spacerDiv {
     margin-top: 0.8vw;
 }
 
@@ -67,3 +63,19 @@ input[type=checkbox] {
     transform: scale(1.5);
 }
 
+/** Text Upload module below **/
+#contentInputTextarea {
+    font-size: 70%;
+    /*text-align: center;*/
+    border-color: black;
+    border-radius: 2em;
+    padding: 20px;
+    width: 900px;
+    max-width: 80%;
+    height: 500px;
+    max-height: 80%;
+}
+
+textarea:focus {
+    outline: none;
+}

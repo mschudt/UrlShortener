@@ -7,9 +7,39 @@ const loadSourceFile = (filename) => {
     return fs.readFileSync(path.join(__dirname, "static", "html", filename), {encoding: "utf8"});
 }
 
-// load html chunks into RAM to eliminate disk reads on each request
-const topHtml = loadSourceFile("top.html");
-const bottomHtml = loadSourceFile("bottom.html");
+// HTML chunks that are reused on the url shortener pages
+const topHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL shortener</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <link rel="icon" type="icon" href="/favicon.ico">
+</head>
+<body>
+<div id="mainDiv">`;
+
+const bottomHtml = `<form action="/create" method="GET">
+    <input id="contentInput" name="url" type="text"/>
+    <div class="spacerDiv">
+        <label for="removeAfterDropdownMenu">Burn after</label>
+        <select id="removeAfterDropdownMenu" name="removeAfter">
+            <option value="2">2 minutes</option>
+            <option value="5">5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="30">30 minutes</option>
+        </select>
+    </div>
+    <div class="spacerDiv">
+        <input checked class="switch" id="removeAfterRedirectCheckbox" name="removeAfterRedirect" type="checkbox"
+               value="true">
+        <label id="removeAfterRedirectCheckboxLabel" for="removeAfterRedirectCheckbox">Remove link after
+            redirecting</label>
+    </div>
+</form>
+</div>
+</body>
+</html>`;
 
 const renderUnsuccessfulPage = () => {
     return topHtml
@@ -55,7 +85,7 @@ const renderRawUrlPage = (resolvedUrl, shortenedUrlId, removeAfterRedirect) => {
     return topHtml
         + `<p>You will be redirected to the following URL</p>`
         + `<p><input type="text" style="width: 80%; max-width: 600px;" value="${resolvedUrl}"/></p>`
-        + `<a href="${href}"><input id="redirectBtn" type="button" value="Redirect"/></a>`;
+        + `<a href="${href}"><input class="button" type="button" value="Redirect"/></a>`;
 }
 
 module.exports = {
@@ -63,5 +93,7 @@ module.exports = {
     renderIdNotFoundPage,
     renderSuccessfulPage,
     renderStartingPage,
-    renderRawUrlPage
+    renderRawUrlPage,
+
+    loadSourceFile
 }

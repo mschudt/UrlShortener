@@ -5,6 +5,7 @@ import * as Config from "./config";
 import * as HtmlRenderer from "./render";
 import {StorageModule, DatabaseAccessor} from "../storage_module";
 import {generateNewRandomId} from "./util";
+import {loadSourceFile} from "./render";
 
 const storageModule = new StorageModule(new DatabaseAccessor());
 storageModule.startGarbageCollection(10);
@@ -18,6 +19,9 @@ app.use(express.static("src/urlshortener_module/static"));
 // Secure express aganst a lot of common vunerabilities
 app.use(helmet());
 
+// Make request post parameters accessible
+app.use(express.urlencoded({extended: true}));
+
 app.get("/create", (req, res) => {
     const url = req.query.url;
     const removeAfter = parseInt(req.query.removeAfter);
@@ -28,7 +32,7 @@ app.get("/create", (req, res) => {
         res.send(HtmlRenderer.renderUnsuccessfulPage());
         return;
         // Check if removeAfter parameter was set and is a valid number
-    } else if (!Config.ID_LIFETIMES.includes(removeAfter)) {
+    } else if (!Config.LIFETIMES.includes(removeAfter)) {
         res.send(HtmlRenderer.renderUnsuccessfulPage());
         return;
     }
@@ -50,6 +54,106 @@ app.get("/create", (req, res) => {
 
     res.send(HtmlRenderer.renderSuccessfulPage(randomId));
 });
+
+/** Temporarily put text uploader module in here for quicker deployment **/
+app.post("/text/create", (req, res) => {
+    const content = req.body.content;
+    const removeAfter = parseInt(req.body.removeAfter);
+
+    res.set("Content-Type", "text/html");
+
+    const topHtml = loadSourceFile("top.html");
+    const bottomHtml = loadSourceFile("bottom.html");
+
+    // Check if the content parameter was passed
+    if (content === undefined) {
+        res.send(topHtml + `<p>Invalid input!</p>` + bottomHtml);
+        return;
+        // Check if removeAfter parameter was set and is a valid number
+    } else if (!Config.LIFETIMES.includes(removeAfter)) {
+        res.send(topHtml + `<p>Invalid input!</p>` + bottomHtml);
+        return;
+    }
+
+    // If the removeAfterRedirect checkbox was checked the link will be removed
+    // after one successful redirect. If not, the link will stay until its timeout is reached.
+    let removeAfterOpening = false;
+    if (req.body.removeAfterRedirect === "true") {
+        removeAfterOpening = true;
+    }
+
+    // Generate random string of wanted id length
+    const randomId = generateNewRandomId(Config.ID_LENGTH);
+
+    // Save id -> url object relation in map
+    // removeAfter is passed to the backend in minutes so we have to convert it to millis
+    // to compare with the current time later
+    storageModule.store("text/" + randomId, content, removeAfter * 60 * 1000, removeAfterOpening);
+
+    res.send(HtmlRenderer.renderSuccessfulPage("text/" + randomId));
+})
+
+app.get("/text/:id", (req, res) => {
+    const id = "text/" + req.params.id;
+
+    // Url object with the passed id
+    const storedObject = storageModule.fetch(id);
+    if (storedObject === undefined) {
+        // Render the invalid id page if the id was not found
+        res.set("Content-Type", "text/html");
+        res.send(HtmlRenderer.renderIdNotFoundPage());
+    } else {
+        // Redirect to target page if it was found
+        res.send(
+            loadSourceFile("top.html") +
+            `<div>
+             <textarea id="contentInputTextarea">${storedObject.content}</textarea>
+             </div>`
+            + `</body>
+               </html>`
+        );
+
+        // If the removeAftereRedirect boolean is set, the url will be removed after one successful redirect.
+        if (storedObject.destroyAfterUse) {
+            storageModule.remove(id);
+        }
+    }
+})
+
+app.get("/text", (req, res) => {
+    res.set("Content-Type", "text/html");
+    const topHtml = loadSourceFile("top.html");
+
+    const bottomHtml = `<form action="/text/create" method="POST">
+    <textarea id="contentInputTextarea" name="content"></textarea>
+    <div class="spacerDiv">
+        <label for="removeAfterDropdownMenu">Burn after</label>
+        <select id="removeAfterDropdownMenu" name="removeAfter">
+            <option value="2">2 minutes</option>
+            <option value="5">5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="30">30 minutes</option>
+        </select>
+    </div>
+    <div class="spacerDiv">
+        <input checked class="switch" id="removeAfterRedirectCheckbox" name="removeAfterRedirect" type="checkbox"
+               value="true">
+        <label id="removeAfterRedirectCheckboxLabel" for="removeAfterRedirectCheckbox">Remove link after
+            redirecting</label>
+    </div>
+    <div class="spacerDiv">
+        <input class="button" id="submitButton" type="submit" value="Submit"/>
+    </div>
+    </form>
+    </div>
+    </body>
+    </html>`;
+
+    res.send(topHtml + `<p>Please enter your text</p>` + bottomHtml);
+})
+
+/** -------------------------------------------------------------------- **/
+
 
 // Try redirect if an url id was passed
 app.get("/:id", (req, res) => {

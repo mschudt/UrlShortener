@@ -1,6 +1,6 @@
 <form action="/create" method="GET">
-    <input id="urlInput" name="url" type="text"/>
-    <div id="removeAfterDiv">
+    <input id="contentInput" name="url" type="text"/>
+    <div class="spacerDiv">
         <label for="removeAfterDropdownMenu">Burn after</label>
         <select id="removeAfterDropdownMenu" name="removeAfter">
             <option value="2">2 minutes</option>
@@ -9,7 +9,7 @@
             <option value="30">30 minutes</option>
         </select>
     </div>
-    <div id="removeAfterRedirectDiv">
+    <div class="spacerDiv">
         <input checked class="switch" id="removeAfterRedirectCheckbox" name="removeAfterRedirect" type="checkbox"
                value="true">
         <label id="removeAfterRedirectCheckboxLabel" for="removeAfterRedirectCheckbox">Remove link after

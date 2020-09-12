@@ -9,3 +9,5 @@ export const generateNewRandomId = (length) => {
 
     return result;
 }
+
+export const StoredType = Object.freeze({"URL": 0, "Text": 1});
