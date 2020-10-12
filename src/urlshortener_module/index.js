@@ -4,7 +4,7 @@ import path from "path";
 import * as Config from "./config";
 import * as HtmlRenderer from "./render";
 import {StorageModule, DatabaseAccessor} from "../storage_module";
-import {generateNewRandomId} from "./util";
+import {StoredType, generateNewRandomId} from "./util";
 import {loadSourceFile} from "./render";
 
 const storageModule = new StorageModule(new DatabaseAccessor());
@@ -50,7 +50,7 @@ app.get("/create", (req, res) => {
     // Save id -> url object relation in map
     // removeAfter is passed to the backend in minutes so we have to convert it to millis
     // to compare with the current time later
-    storageModule.store(randomId, req.query.url, removeAfter * 60 * 1000, removeAfterRedirect);
+    storageModule.store(randomId, req.query.url, StoredType.URL, removeAfter * 60 * 1000, removeAfterRedirect);
 
     res.send(HtmlRenderer.renderSuccessfulPage(randomId));
 });
@@ -88,7 +88,7 @@ app.post("/text/create", (req, res) => {
     // Save id -> url object relation in map
     // removeAfter is passed to the backend in minutes so we have to convert it to millis
     // to compare with the current time later
-    storageModule.store("text/" + randomId, content, removeAfter * 60 * 1000, removeAfterOpening);
+    storageModule.store("text/" + randomId, content, StoredType.Text, removeAfter * 60 * 1000, removeAfterOpening);
 
     res.send(HtmlRenderer.renderSuccessfulPage("text/" + randomId));
 })

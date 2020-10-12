@@ -1,3 +1,5 @@
+import {StoredType} from "../urlshortener_module/util"
+
 export class StorageModule {
 
     constructor(databaseAccessor) {
@@ -19,7 +21,7 @@ export class StorageModule {
 
     startGarbageCollection(seconds) {
         // Register url cleanup timer that deletes URLs.
-        // Run that check every 10 seconds.
+        // Run that check every n seconds.
         setInterval(() => this.databaseAccessor.cleanup(), seconds * 1000);
     }
 
@@ -55,9 +57,10 @@ export class DatabaseAccessor {
 }
 
 export class StoredObject {
-    constructor(id, content, createdAt, lifetime, destroyAfterUse) {
+    constructor(id, content, type, createdAt, lifetime, destroyAfterUse) {
         this.id = id;
         this.content = content;
+        this.type = type;
         this.createdAt = createdAt;
         this.lifetime = lifetime;
         this.destroyAfterUse = destroyAfterUse;

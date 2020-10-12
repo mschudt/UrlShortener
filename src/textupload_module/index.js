@@ -5,15 +5,11 @@ import * as Config from "./config";
 import * as HtmlRenderer from "./render";
 import {generateNewRandomId} from "./util";
 
-// const router = express.Router();
-// Serve static files in the /static directory
-// Mainly html and css files
-app.use(express.static("src/urlshortener_module/static"));
 
-// Secure express aganst a lot of common vunerabilities
-app.use(helmet());
+export const router = express.Router();
 
-app.get("/text/create", (req, res) => {
+
+router.get("/text/create", (req, res) => {
     const url = req.query.url;
     const removeAfter = parseInt(req.query.removeAfter);
 
@@ -47,7 +43,7 @@ app.get("/text/create", (req, res) => {
 });
 
 // Try redirect if an url id was passed
-app.get("/:id", (req, res) => {
+router.get("/:id", (req, res) => {
         // Url object with the passed id
         const storedObject = storageModule.fetch(req.params.id);
         if (storedObject === undefined) {
@@ -66,7 +62,7 @@ app.get("/:id", (req, res) => {
     }
 );
 
-app.get("/:id/raw", (req, res) => {
+router.get("/:id", (req, res) => {
     // Url object with the passed id
     const storedObject = storageModule.fetch(req.params.id);
 
@@ -83,12 +79,7 @@ app.get("/:id/raw", (req, res) => {
 });
 
 // Show start page if no url id was passed
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
     res.set("Content-Type", "text/html");
     res.send(HtmlRenderer.renderStartingPage());
 })
-
-// Start express application server
-app.listen(Config.PORT, () => {
-    console.log(`Express server listing on port ${Config.PORT}`);
-});
