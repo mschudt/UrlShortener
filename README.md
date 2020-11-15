@@ -1,6 +1,6 @@
 ## About
 This is a basic implementation of an URL shortener that deletes shortened URLs
-after 2 minutes or one redirection. Version 2.0 also allows text upload.
+after X minutes or one redirection. Version 2.0 also allows text upload.
 
 URL shortening @ [shr.gg](https://shr.gg)
 

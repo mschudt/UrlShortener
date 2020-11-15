@@ -1,5 +1,3 @@
-import {StoredType} from "../urlshortener_module/util"
-
 export class StorageModule {
 
     constructor(databaseAccessor) {

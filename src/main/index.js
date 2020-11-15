@@ -1,11 +1,10 @@
 import express from "express";
 import helmet from "helmet";
-import path from "path";
 import * as Config from "./config";
 import * as HtmlRenderer from "./render";
-import {StorageModule, DatabaseAccessor} from "../storage_module";
+import {StorageModule, DatabaseAccessor} from "../storage";
 import {StoredType, generateNewRandomId} from "./util";
-import {loadSourceFile} from "./render";
+import {loadSourceFile, topHtml, bottomHtml} from "./render";
 
 const storageModule = new StorageModule(new DatabaseAccessor());
 storageModule.startGarbageCollection(10);
@@ -14,7 +13,7 @@ const app = express();
 
 // Serve static files in the /static directory
 // Mainly html and css files
-app.use(express.static("src/urlshortener_module/static"));
+app.use(express.static("src/main/static/"));
 
 // Secure express aganst a lot of common vunerabilities
 app.use(helmet());
@@ -55,15 +54,11 @@ app.get("/create", (req, res) => {
     res.send(HtmlRenderer.renderSuccessfulPage(randomId));
 });
 
-/** Temporarily put text uploader module in here for quicker deployment **/
 app.post("/text/create", (req, res) => {
     const content = req.body.content;
     const removeAfter = parseInt(req.body.removeAfter);
 
     res.set("Content-Type", "text/html");
-
-    const topHtml = loadSourceFile("top.html");
-    const bottomHtml = loadSourceFile("bottom.html");
 
     // Check if the content parameter was passed
     if (content === undefined) {
@@ -105,7 +100,7 @@ app.get("/text/:id", (req, res) => {
     } else {
         // Redirect to target page if it was found
         res.send(
-            loadSourceFile("top.html") +
+            topHtml+
             `<div>
              <textarea id="contentInputTextarea">${storedObject.content}</textarea>
              </div>`
@@ -122,8 +117,8 @@ app.get("/text/:id", (req, res) => {
 
 app.get("/text", (req, res) => {
     res.set("Content-Type", "text/html");
-    const topHtml = loadSourceFile("top.html");
 
+    // The bottomHtml of the text shortener differs from the url shortener
     const bottomHtml = `<form action="/text/create" method="POST">
     <textarea id="contentInputTextarea" name="content"></textarea>
     <div class="spacerDiv">

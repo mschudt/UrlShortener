@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "build": "babel src -d dist --copy-files",
-    "serve": "node dist/urlshortener_module/index.js",
+    "serve": "node dist/main/index.js",
     "start": "npm run build && npm run serve",
-    "start_babel_node": "npx babel-node src/urlshortener_module/index.js"
+    "start_babel_node": "npx babel-node src/main/index.js"
   },
   "dependencies": {
     "express": "^4.17.1",
