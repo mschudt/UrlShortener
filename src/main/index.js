@@ -4,7 +4,7 @@ import * as Config from "./config";
 import * as HtmlRenderer from "./render";
 import {StorageModule, DatabaseAccessor} from "../storage";
 import {StoredType, generateNewRandomId} from "./util";
-import {loadSourceFile, topHtml, bottomHtml} from "./render";
+import {topHtml, bottomHtml} from "./render";
 
 const storageModule = new StorageModule(new DatabaseAccessor());
 storageModule.startGarbageCollection(10);
@@ -13,13 +13,13 @@ const app = express();
 
 // Serve static files in the /static directory
 // Mainly html and css files
-app.use(express.static("src/main/static/"));
+app.use(express.static("src/main/static"));
 
 // Secure express aganst a lot of common vunerabilities
 app.use(helmet());
 
 // Make request post parameters accessible
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({limit: "50mb"}));
 
 app.get("/create", (req, res) => {
     const url = req.query.url;
@@ -100,7 +100,7 @@ app.get("/text/:id", (req, res) => {
     } else {
         // Redirect to target page if it was found
         res.send(
-            topHtml+
+            topHtml +
             `<div>
              <textarea id="contentInputTextarea">${storedObject.content}</textarea>
              </div>`
