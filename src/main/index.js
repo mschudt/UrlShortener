@@ -188,6 +188,7 @@ app.get("/:id/raw", (req, res) => {
 
 // Show start page if no url id was passed
 app.get("/", (req, res) => {
+    console.log("shr.gg");
     res.set("Content-Type", "text/html");
     res.send(HtmlRenderer.renderStartingPage());
 })

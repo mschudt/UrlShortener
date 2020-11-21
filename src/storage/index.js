@@ -4,9 +4,9 @@ export class StorageModule {
         this.databaseAccessor = databaseAccessor;
     }
 
-    store(id, content, lifetime, destroyAfterUse) {
+    store(id, content, type, lifetime, destroyAfterUse) {
         const createdAt = Date.now();
-        this.databaseAccessor.add(new StoredObject(id, content, createdAt, lifetime, destroyAfterUse));
+        this.databaseAccessor.add(new StoredObject(id, content, type, createdAt, lifetime, destroyAfterUse));
     }
 
     fetch(id) {
