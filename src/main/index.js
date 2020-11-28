@@ -121,7 +121,7 @@ app.get("/text/:id", (req, res) => {
 
 app.get("/text", (req, res) => {
     textUploaderVisitsCounter += 1;
-    console.log(urlShortenerVisitsCounter);
+    console.log("/text visits: " + urlShortenerVisitsCounter);
 
     res.set("Content-Type", "text/html");
 
@@ -196,7 +196,7 @@ app.get("/:id/raw", (req, res) => {
 // Show start page if no url id was passed
 app.get("/", (req, res) => {
     urlShortenerVisitsCounter += 1;
-    console.log(urlShortenerVisitsCounter);
+    console.log("/ visits: " + urlShortenerVisitsCounter);
 
     res.set("Content-Type", "text/html");
     res.send(HtmlRenderer.renderStartingPage());
