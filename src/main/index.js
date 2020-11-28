@@ -21,6 +21,10 @@ app.use(helmet());
 // Make request post parameters accessible
 app.use(express.urlencoded({limit: "50mb"}));
 
+// visiter count since restart is the only anonymized usage data shr.gg tracks
+let urlShortenerVisitsCounter = 0;
+let textUploaderVisitsCounter = 0;
+
 app.get("/create", (req, res) => {
     const url = req.query.url;
     const removeAfter = parseInt(req.query.removeAfter);
@@ -116,6 +120,8 @@ app.get("/text/:id", (req, res) => {
 })
 
 app.get("/text", (req, res) => {
+    textUploaderVisitsCounter += 1;
+
     res.set("Content-Type", "text/html");
 
     // The bottomHtml of the text shortener differs from the url shortener
@@ -188,7 +194,8 @@ app.get("/:id/raw", (req, res) => {
 
 // Show start page if no url id was passed
 app.get("/", (req, res) => {
-    console.log("shr.gg");
+    urlShortenerVisitsCounter += 1;
+
     res.set("Content-Type", "text/html");
     res.send(HtmlRenderer.renderStartingPage());
 })
