@@ -19,7 +19,7 @@ app.use(express.static("src/main/static"));
 app.use(helmet());
 
 // Make request post parameters accessible
-app.use(express.urlencoded({limit: "50mb"}));
+app.use(express.urlencoded({limit: "50mb", extended: true}));
 
 // visiter count since restart is the only anonymized usage data shr.gg tracks
 let urlShortenerVisitsCounter = 0;
@@ -151,10 +151,13 @@ app.get("/text", (req, res) => {
     </body>
     </html>`;
 
-    res.send(topHtml + `<p>Please enter your text</p>` + bottomHtml);
+    res.send(
+        topHtml
+        + `<h1>shr.gg - Text uploader</h1>`
+        + `<p>Please enter your text</p>`
+        + bottomHtml
+    );
 })
-
-/** -------------------------------------------------------------------- **/
 
 
 // Try redirect if an url id was passed

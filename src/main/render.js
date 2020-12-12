@@ -35,10 +35,10 @@ export const renderSuccessfulPage = (createdId) => {
 
 export const renderStartingPage = () => {
     return topHtml
+        + `<h1>shr.gg - URL shortener</h1>`
         + `<p>Please enter a URL to shorten</p>`
         + bottomHtml;
 }
-
 export const renderRawUrlPage = (resolvedUrl, shortenedUrlId, removeAfterRedirect) => {
     let href;
     // If the link should be removed after a redirect, we have to put the shortened url as the <a>'s href attribute.

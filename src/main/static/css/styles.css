@@ -5,6 +5,11 @@ body {
     font-size: 180%;
 }
 
+h1 {
+    font-size: 130%;
+    /*font-weight: normal;*/
+}
+
 #mainDiv {
     text-align: center;
 }
