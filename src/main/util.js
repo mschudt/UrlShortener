@@ -1,3 +1,5 @@
+const randomWords = require('random-words');
+
 export const generateNewRandomId = (length) => {
     // All characters that can appear in a random id.
     // Removed letters l, I, O, 0 due to legibility
@@ -8,6 +10,11 @@ export const generateNewRandomId = (length) => {
     }
 
     return result;
+}
+
+export const generateNewIdAsRandomWord = (length) => {
+    return randomWords({exactly: 1, maxLength: length});
+
 }
 
 export const StoredType = Object.freeze({"URL": 0, "Text": 1});

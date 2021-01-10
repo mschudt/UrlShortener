@@ -3,7 +3,7 @@ import helmet from "helmet";
 import * as Config from "./config";
 import * as HtmlRenderer from "./render";
 import {StorageModule, DatabaseAccessor} from "../storage";
-import {StoredType, generateNewRandomId} from "./util";
+import {StoredType, generateNewIdAsRandomWord} from "./util";
 import {topHtml, bottomHtml} from "./render";
 
 const storageModule = new StorageModule(new DatabaseAccessor());
@@ -48,7 +48,7 @@ app.get("/create", (req, res) => {
     }
 
     // Generate random string of wanted id length
-    const randomId = generateNewRandomId(Config.ID_LENGTH);
+    const randomId = generateNewIdAsRandomWord(Config.ID_LENGTH);
 
     // Save id -> url object relation in map
     // removeAfter is passed to the backend in minutes so we have to convert it to millis
@@ -82,7 +82,7 @@ app.post("/text/create", (req, res) => {
     }
 
     // Generate random string of wanted id length
-    const randomId = generateNewRandomId(Config.ID_LENGTH);
+    const randomId = generateNewIdAsRandomWord(Config.ID_LENGTH);
 
     // Save id -> url object relation in map
     // removeAfter is passed to the backend in minutes so we have to convert it to millis
