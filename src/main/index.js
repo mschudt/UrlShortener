@@ -121,7 +121,7 @@ app.get("/text/:id", (req, res) => {
 
 app.get("/text", (req, res) => {
     textUploaderVisitsCounter += 1;
-    console.log("/text visits: " + urlShortenerVisitsCounter);
+    console.log("/text visits: " + textUploaderVisitsCounter);
 
     res.set("Content-Type", "text/html");
 
