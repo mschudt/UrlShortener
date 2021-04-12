@@ -3,15 +3,29 @@
 body {
     font-family: "Helvetica", sans-serif;
     font-size: 180%;
+    height: 80%;
+}
+
+html {
+    height: 100%;
+}
+
+form {
+    height: 100%;
 }
 
 h1 {
     font-size: 130%;
-    /*font-weight: normal;*/
+    max-height: 15%;
+}
+
+p {
+    max-height: 5%;
 }
 
 #mainDiv {
     text-align: center;
+    height: 80%;
 }
 
 input {
@@ -76,7 +90,8 @@ input[type=checkbox] {
     padding: 20px;
     width: 900px;
     max-width: 80%;
-    height: 52vh;
+    height: 800px;
+    max-height: 70%;
 }
 
 textarea:focus {
