@@ -68,17 +68,15 @@ input[type=checkbox] {
     transform: scale(1.5);
 }
 
-/** Text Upload module below **/
+/** Text upload module below **/
 #contentInputTextarea {
     font-size: 70%;
-    /*text-align: center;*/
     border-color: black;
     border-radius: 2em;
     padding: 20px;
     width: 900px;
     max-width: 80%;
-    height: 500px;
-    max-height: 80%;
+    height: 52vh;
 }
 
 textarea:focus {
