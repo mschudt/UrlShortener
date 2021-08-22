@@ -105,9 +105,7 @@ app.get("/text/:id", (req, res) => {
         // Redirect to target page if it was found
         res.send(
             topHtml +
-            `<div>
-             <textarea id="contentInputTextarea">${storedObject.content}</textarea>
-             </div>`
+            `<textarea id="contentInputTextarea">${storedObject.content}</textarea>`
             + `</body>
                </html>`
         );
