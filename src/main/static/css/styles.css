@@ -15,6 +15,7 @@ form {
 }
 
 h1 {
+    flex: 1;
     font-size: 130%;
     max-height: 15%;
 }
@@ -38,6 +39,11 @@ input:focus {
 #contentInput {
     width: 80%;
     max-width: 380px;
+}
+
+.expanded-row {
+    display: flex;
+    flex: 1;
 }
 
 .button {
