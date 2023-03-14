@@ -1,10 +1,11 @@
 import fs from "fs";
 import path from "path";
+import escape from "escape-html";
 import * as Config from "./config";
 
 export const loadSourceFile = (filename) => {
     // build filepath and read in file as a string synchronously
-    return fs.readFileSync(path.join(__dirname, "static", "html", filename), {encoding: "utf8"});
+    return fs.readFileSync(path.join(__dirname, "static", "html", filename), { encoding: "utf8" });
 }
 
 // HTML chunks that are reused on the url shortener pages
@@ -56,6 +57,6 @@ export const renderRawUrlPage = (resolvedUrl, shortenedUrlId, removeAfterRedirec
 
     return topHtml
         + `<p>You will be redirected to the following URL</p>`
-        + `<p><input type="text" style="width: 80%; max-width: 600px;" value="${resolvedUrl}"/></p>`
-        + `<a href="${href}"><input class="button" type="button" value="Redirect"/></a>`;
+        + `<p><input type="text" style="width: 80%; max-width: 600px;" value="${escape(resolvedUrl)}"/></p>`
+        + `<a href="${escape(href)}"><input class="button" type="button" value="Redirect"/></a>`;
 }
