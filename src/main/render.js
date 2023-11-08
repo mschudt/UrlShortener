@@ -36,7 +36,7 @@ export const renderSuccessfulPage = (createdId) => {
 
 export const renderStartingPage = () => {
     return topHtml
-        + `<a href="/text" style="position: absolute; left: 14px; top: 28px;">Text uploader</a>`
+        + `<a id="navLink" href="/text">Text uploader</a>`
         + `<h1>shr.gg - URL shortener</h1>`
         + `<p>Please enter a URL to shorten</p>`
         + bottomHtml;

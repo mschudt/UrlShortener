@@ -78,6 +78,20 @@ input[type=checkbox] {
     transform: scale(1.5);
 }
 
+#navLink {
+    position: absolute;
+    left: 14px;
+    top: 28px;
+}
+
+@media only screen and (max-width: 785px) {
+    #navLink {
+        position: relative;
+        top: 5px;
+        left: 0px;
+    }
+}
+
 /** Text upload module below **/
 #contentInputTextarea {
     font-size: 70%;
