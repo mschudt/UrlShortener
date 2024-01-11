@@ -3,9 +3,9 @@ import helmet from "helmet";
 import escape from "escape-html";
 import * as Config from "./config";
 import * as HtmlRenderer from "./render";
-import { StorageModule, DatabaseAccessor } from "../storage";
-import { StoredType, generateNewIdAsRandomWord } from "./util";
-import { topHtml, bottomHtml } from "./render";
+import {StorageModule, DatabaseAccessor} from "../storage";
+import {StoredType, generateNewIdAsRandomWord} from "./util";
+import {topHtml, bottomHtml} from "./render";
 
 const storageModule = new StorageModule(new DatabaseAccessor());
 storageModule.startGarbageCollection(10);
@@ -20,7 +20,7 @@ app.use(express.static("src/main/static"));
 app.use(helmet());
 
 // Make request post parameters accessible
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.urlencoded({limit: "50mb", extended: true}));
 
 // visiter count since restart is the only anonymized usage data shr.gg tracks
 let urlShortenerVisitsCounter = 0;
@@ -162,39 +162,21 @@ app.get("/text", (req, res) => {
 
 // Try redirect if an url id was passed
 app.get("/:id", (req, res) => {
-    // Url object with the passed id
-    const storedObject = storageModule.fetch(req.params.id);
-    if (storedObject === undefined) {
-        // Render the invalid id page if the id was not found
-        res.set("Content-Type", "text/html");
-        res.send(HtmlRenderer.renderIdNotFoundPage());
-    } else {
-        // Redirect to target page if it was found
-        res.redirect(storedObject.content);
+        // Url object with the passed id
+        const storedObject = storageModule.fetch(req.params.id);
 
-        // If the removeAftereRedirect boolean is set, the url will be removed after one successful redirect.
-        if (storedObject.destroyAfterUse) {
-            storageModule.remove(req.params.id);
+        if (storedObject === undefined) {
+            // Render the invalid id page if the id was not found
+            res.set("Content-Type", "text/html");
+            res.send(HtmlRenderer.renderIdNotFoundPage());
+
+        } else {
+            const resolvedUrl = storedObject.content;
+            res.set("Content-Type", "text/html");
+            res.send(HtmlRenderer.renderRawUrlPage(resolvedUrl, req.params.id, storedObject.destroyAfterUse));
         }
     }
-}
 );
-
-app.get("/:id/raw", (req, res) => {
-    // Url object with the passed id
-    const storedObject = storageModule.fetch(req.params.id);
-
-    if (storedObject === undefined) {
-        // Render the invalid id page if the id was not found
-        res.set("Content-Type", "text/html");
-        res.send(HtmlRenderer.renderIdNotFoundPage());
-
-    } else {
-        const resolvedUrl = storedObject.content;
-        res.set("Content-Type", "text/html");
-        res.send(HtmlRenderer.renderRawUrlPage(resolvedUrl, req.params.id, storedObject.destroyAfterUse));
-    }
-});
 
 // Show start page if no url id was passed
 app.get("/", (req, res) => {
