@@ -169,7 +169,6 @@ app.get("/:id", (req, res) => {
             // Render the invalid id page if the id was not found
             res.set("Content-Type", "text/html");
             res.send(HtmlRenderer.renderIdNotFoundPage());
-
         } else {
             const resolvedUrl = storedObject.content;
             res.set("Content-Type", "text/html");
@@ -177,6 +176,24 @@ app.get("/:id", (req, res) => {
         }
     }
 );
+
+app.get("/:id/use", (req, res) => {
+    // Url object with the passed id
+    const storedObject = storageModule.fetch(req.params.id);
+    if (storedObject === undefined) {
+        // Render the invalid id page if the id was not found
+        res.set("Content-Type", "text/html");
+        res.send(HtmlRenderer.renderIdNotFoundPage());
+    } else {
+        // Redirect to target page if it was found
+        res.redirect(storedObject.content);
+
+        // If the removeAftereRedirect boolean is set, the url will be removed after one successful redirect.
+        if (storedObject.destroyAfterUse) {
+            storageModule.remove(req.params.id);
+        }
+    }
+});
 
 // Show start page if no url id was passed
 app.get("/", (req, res) => {

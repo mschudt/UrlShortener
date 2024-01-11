@@ -5,7 +5,7 @@ import * as Config from "./config";
 
 export const loadSourceFile = (filename) => {
     // build filepath and read in file as a string synchronously
-    return fs.readFileSync(path.join(__dirname, "static", "html", filename), { encoding: "utf8" });
+    return fs.readFileSync(path.join(__dirname, "static", "html", filename), {encoding: "utf8"});
 }
 
 // HTML chunks that are reused on the url shortener pages
@@ -47,7 +47,7 @@ export const renderRawUrlPage = (resolvedUrl, shortenedUrlId, removeAfterRedirec
     // This is because otherwise we cannot (without using additional JavaScript) send a message to the server
     // signalizing that the link should be deleted.
     if (removeAfterRedirect) {
-        href = Config.HOSTNAME + shortenedUrlId;
+        href = Config.HOSTNAME + shortenedUrlId + "/use";
 
     } else {
         // If the link should only be removed after the timeout has been reached, we can input the unshortened version
