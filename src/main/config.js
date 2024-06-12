@@ -17,7 +17,7 @@ const PORT = process.argv[3] || 3001;
 // parameter length of the shortened url
 const ID_LENGTH = 5;
 
-// delete saved content after that many milliseconds
+// delete saved content after that many minutes
 const LIFETIMES = [2, 5, 10, 30];
 
 // Leave the NODE_ENV variable on "development" if it was set to that.
