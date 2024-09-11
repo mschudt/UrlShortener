@@ -16,7 +16,7 @@ const app = express();
 // Mainly html and css files
 app.use(express.static("src/main/static"));
 
-// Secure express aganst a lot of common vunerabilities
+// Secure express against a lot of common vulnerabilities
 app.use(helmet());
 
 // Make request post parameters accessible

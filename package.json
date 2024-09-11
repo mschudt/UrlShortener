@@ -10,13 +10,13 @@
   },
   "dependencies": {
     "escape-html": "^1.0.3",
-    "express": "^4.17.1",
-    "helmet": "^4.1.0",
-    "random-words": "^1.1.1"
+    "express": "^5.0.0",
+    "helmet": "^7.1.0",
+    "random-words": "^1.3.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.11.4",
+    "@babel/core": "7.25.2",
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.11.0"
   }
