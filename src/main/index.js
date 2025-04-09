@@ -51,6 +51,8 @@ app.get("/create", (req, res) => {
     // Generate random string of wanted id length
     const randomId = generateNewIdAsRandomWord(Config.ID_LENGTH);
 
+    console.log(`/create ${randomId}`);
+
     // Save id -> url object relation in map
     // removeAfter is passed to the backend in minutes so we have to convert it to millis
     // to compare with the current time later
@@ -205,6 +207,6 @@ app.get("/", (req, res) => {
 })
 
 // Start express application server
-app.listen(Config.PORT, () => {
+app.listen(Config.PORT, "127.0.0.1", () => {
     console.log(`Express server listing on port ${Config.PORT}`);
 });
