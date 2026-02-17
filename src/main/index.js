@@ -92,7 +92,7 @@ app.post("/text/create", (req, res) => {
     // to compare with the current time later
     storageModule.store("text/" + randomId, content, StoredType.Text, removeAfter * 60 * 1000, removeAfterOpening);
 
-    res.send(HtmlRenderer.renderSuccessfulPage("text/" + randomId));
+    res.send(HtmlRenderer.renderTextSuccessfulPage("text/" + randomId));
 })
 
 app.get("/text/:id", (req, res) => {
