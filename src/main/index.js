@@ -109,6 +109,7 @@ app.get("/text/:id", (req, res) => {
         res.send(
             topHtml +
             `<textarea id="contentInputTextarea">${escape(storedObject.content)}</textarea>`
+            + HtmlRenderer.renderBackToTextUploaderButton()
             + `</body>
                </html>`
         );

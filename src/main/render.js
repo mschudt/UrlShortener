@@ -15,6 +15,10 @@ export const bottomHtml = loadSourceFile("bottom.html");
 
 const closingHtml = `</div></body></html>`;
 
+export const renderBackToTextUploaderButton = () => {
+    return `<p><a href="/text"><input class="button" style="width: 25ch;" type="button" value="Go back to text uploader"/></a></p>`;
+}
+
 export const renderUnsuccessfulPage = () => {
     return topHtml
         + `<p>Please enter a valid URL!</p>`
@@ -32,7 +36,7 @@ export const renderSuccessfulPage = (createdId) => {
     const shortenedUrl = Config.HOSTNAME + createdId;
     return topHtml
         + `<p>Successfully created shortened link</p><div><input type="text" style="width: ${shortenedUrl.length}ch; max-width: 80%;" value="${shortenedUrl}"/></div>`
-        + `<p><a href="/text"><input class="button" style="width: 25ch;" type="button" value="Go back to text uploader"/></a></p>`
+        + renderBackToTextUploaderButton()
         + `<p>Shorten another URL</p>`
         + bottomHtml;
 }
@@ -41,7 +45,7 @@ export const renderTextSuccessfulPage = (createdId) => {
     const shortenedUrl = Config.HOSTNAME + createdId;
     return topHtml
         + `<p>Successfully created shortened link</p><div><input type="text" style="width: ${shortenedUrl.length}ch; max-width: 80%;" value="${shortenedUrl}"/></div>`
-        + `<p><a href="/text"><input class="button" style="width: 25ch;" type="button" value="Go back to text uploader"/></a></p>`
+        + renderBackToTextUploaderButton()
         + closingHtml;
 }
 
