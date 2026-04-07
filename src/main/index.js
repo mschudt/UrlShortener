@@ -155,7 +155,7 @@ app.get("/text", (req, res) => {
 
     res.send(
         topHtml
-        + `<a id="navLink" href="/">URL shortener</a>`
+        + HtmlRenderer.renderUrlShortenerLink()
         + `<h1>shr.gg - Text uploader</h1>`
         + `<p>Please enter your text</p>`
         + bottomHtml

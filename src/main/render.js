@@ -27,6 +27,10 @@ export const renderTextUploaderLink = () => {
     return `<a id="navLink" href="/text">Text uploader</a>`;
 }
 
+export const renderUrlShortenerLink = () => {
+    return `<a id="navLink" href="/">URL shortener</a>`;
+}
+
 export const renderUnsuccessfulPage = () => {
     return topHtml
         + `<p>Please enter a valid URL!</p>`
@@ -59,6 +63,7 @@ export const renderSuccessfulPage = (createdId) => {
 
 export const renderTextSuccessfulPage = (createdId) => {
     return topHtml
+        + renderUrlShortenerLink()
         + `<p>Successfully created shortened link</p>`
         + renderShortenedUrlResult(createdId)
         + renderBackToTextUploaderButton()
