@@ -32,19 +32,27 @@ export const renderIdNotFoundPage = () => {
         + bottomHtml;
 }
 
-export const renderSuccessfulPage = (createdId) => {
+const renderShortenedUrlResult = (createdId) => {
     const shortenedUrl = Config.HOSTNAME + createdId;
+    return `<div class="shortenedUrlRow">`
+        + `<input id="shortenedUrlInput" class="shortenedUrlInput" type="text" readonly style="width: ${shortenedUrl.length}ch;" value="${escape(shortenedUrl)}"/>`
+        + `<input id="copyButton" class="button" type="button" value="Copy"/>`
+        + `</div>`;
+}
+
+export const renderSuccessfulPage = (createdId) => {
     return topHtml
-        + `<p>Successfully created shortened link</p><div><input type="text" style="width: ${shortenedUrl.length}ch; max-width: 80%;" value="${shortenedUrl}"/></div>`
+        + `<p>Successfully created shortened link</p>`
+        + renderShortenedUrlResult(createdId)
         + renderBackToTextUploaderButton()
         + `<p>Shorten another URL</p>`
         + bottomHtml;
 }
 
 export const renderTextSuccessfulPage = (createdId) => {
-    const shortenedUrl = Config.HOSTNAME + createdId;
     return topHtml
-        + `<p>Successfully created shortened link</p><div><input type="text" style="width: ${shortenedUrl.length}ch; max-width: 80%;" value="${shortenedUrl}"/></div>`
+        + `<p>Successfully created shortened link</p>`
+        + renderShortenedUrlResult(createdId)
         + renderBackToTextUploaderButton()
         + closingHtml;
 }
