@@ -19,6 +19,10 @@ export const renderBackToTextUploaderButton = () => {
     return `<p><a href="/text"><input class="button" style="width: 25ch;" type="button" value="Go back to text uploader"/></a></p>`;
 }
 
+export const renderTextUploaderLink = () => {
+    return `<a id="navLink" href="/text">Text uploader</a>`;
+}
+
 export const renderUnsuccessfulPage = () => {
     return topHtml
         + `<p>Please enter a valid URL!</p>`
@@ -42,9 +46,9 @@ const renderShortenedUrlResult = (createdId) => {
 
 export const renderSuccessfulPage = (createdId) => {
     return topHtml
+        + renderTextUploaderLink()
         + `<p>Successfully created shortened link</p>`
         + renderShortenedUrlResult(createdId)
-        + renderBackToTextUploaderButton()
         + `<p>Shorten another URL</p>`
         + bottomHtml;
 }
@@ -59,7 +63,7 @@ export const renderTextSuccessfulPage = (createdId) => {
 
 export const renderStartingPage = () => {
     return topHtml
-        + `<a id="navLink" href="/text">Text uploader</a>`
+        + renderTextUploaderLink()
         + `<h1>shr.gg - URL shortener</h1>`
         + `<p>Please enter a URL to shorten</p>`
         + bottomHtml;
