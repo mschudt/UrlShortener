@@ -3,107 +3,248 @@ import helmet from "helmet";
 import escape from "escape-html";
 import * as Config from "./config";
 import * as HtmlRenderer from "./render";
-import {StorageModule, DatabaseAccessor} from "../storage";
+import {StorageModule, DatabaseAccessor, StoreResult} from "../storage";
 import {StoredType, generateNewIdAsRandomWord} from "./util";
-import {topHtml, bottomHtml} from "./render";
+import {topHtml} from "./render";
 
-const storageModule = new StorageModule(new DatabaseAccessor());
+const storageModule = new StorageModule(new DatabaseAccessor({
+    maxEntries: Config.MAX_STORED_ENTRIES,
+    maxBytes: Config.MAX_STORED_BYTES,
+}));
 storageModule.startGarbageCollection(10);
 
 const app = express();
+
+// Apply security headers to every response, including static assets.
+app.use(helmet());
 
 // Serve static files in the /static directory
 // Mainly html and css files
 app.use(express.static("src/main/static"));
 
-// Secure express against a lot of common vulnerabilities
-app.use(helmet());
+const parseForm = express.urlencoded({
+    limit: Config.FORM_BODY_LIMIT,
+    extended: false,
+    parameterLimit: 10,
+});
 
-// Make request post parameters accessible
-app.use(express.urlencoded({limit: "50mb", extended: true}));
+const noStore = (req, res, next) => {
+    res.set("Cache-Control", "no-store");
+    next();
+}
 
-// visiter count since restart is the only anonymized usage data shr.gg tracks
+const noIndex = (req, res, next) => {
+    res.set("X-Robots-Tag", "noindex, noarchive");
+    next();
+}
+
+const privatePage = [noStore, noIndex];
+
+const parseLifetime = value => {
+    if (typeof value !== "string" || !Config.LIFETIMES.some(lifetime => String(lifetime) === value)) {
+        return undefined;
+    }
+
+    return Number(value);
+}
+
+const isValidDestroyAfterUse = value => value === undefined || value === "true";
+
+const absoluteHttpUrlPattern = /^https?:\/\/[^/?#\\]+(?:[/?#]|$)/i;
+const invalidRawUrlCharacterPattern = /[\s\\\u0000-\u001f\u007f]/;
+
+const parseDestinationUrl = value => {
+    if (
+        typeof value !== "string"
+        || !absoluteHttpUrlPattern.test(value)
+        || invalidRawUrlCharacterPattern.test(value)
+    ) {
+        return undefined;
+    }
+
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(value);
+    } catch {
+        return undefined;
+    }
+
+    if (!["http:", "https:"].includes(parsedUrl.protocol) || parsedUrl.hostname === "") {
+        return undefined;
+    }
+    if (parsedUrl.username !== "" || parsedUrl.password !== "") {
+        return undefined;
+    }
+
+    return parsedUrl.href;
+}
+
+const securityEventCounters = {
+    payloadTooLarge: 0,
+    rateLimited: 0,
+    storageFull: 0,
+};
+
+const securityEventLogIntervalMillis = 60 * 1000;
+let securityEventCountersChanged = false;
+
+const recordSecurityEvent = event => {
+    securityEventCounters[event] += 1;
+    securityEventCountersChanged = true;
+}
+
+const securityEventLogTimer = setInterval(() => {
+    if (!securityEventCountersChanged) {
+        return;
+    }
+    securityEventCountersChanged = false;
+
+    console.log(
+        `rejections: 413=${securityEventCounters.payloadTooLarge} `
+        + `429=${securityEventCounters.rateLimited} `
+        + `storage-full=${securityEventCounters.storageFull}`
+    );
+}, securityEventLogIntervalMillis);
+securityEventLogTimer.unref();
+
+const storeWithGeneratedId = (prefix, content, type, lifetime, destroyAfterUse) => {
+    while (true) {
+        const randomId = generateNewIdAsRandomWord(
+            Config.ID_LENGTH,
+            candidate => storageModule.has(prefix + candidate)
+        );
+        const result = storageModule.store(
+            prefix + randomId,
+            content,
+            type,
+            lifetime,
+            destroyAfterUse
+        );
+
+        if (result === StoreResult.STORED) {
+            return {result, randomId};
+        }
+        if (result === StoreResult.CAPACITY) {
+            return {result};
+        }
+    }
+}
+
+const sendStorageFull = res => {
+    recordSecurityEvent("storageFull");
+    res.set("Retry-After", String(Config.STORAGE_FULL_RETRY_SECONDS));
+    res.type("html");
+    res.status(503).send(HtmlRenderer.renderServiceUnavailablePage());
+}
+
+const sendPayloadTooLarge = res => {
+    recordSecurityEvent("payloadTooLarge");
+    res.type("html");
+    res.status(413).send(HtmlRenderer.renderPayloadTooLargePage());
+}
+
+// Visitor count since restart is the only anonymized usage data shr.gg tracks.
 let urlShortenerVisitsCounter = 0;
 let textUploaderVisitsCounter = 0;
 
-app.get("/create", (req, res) => {
-    const url = req.query.url;
-    const removeAfter = parseInt(req.query.removeAfter);
+app.get("/create", privatePage, (req, res) => {
+    const query = req.query || {};
+    const url = parseDestinationUrl(query.url);
+    const removeAfter = parseLifetime(query.removeAfter);
 
-    res.set("Content-Type", "text/html");
+    res.type("html");
     // Check if the url was valid
-    if (url === undefined || !(url.startsWith("http://") || url.startsWith("https://"))) {
-        res.send(HtmlRenderer.renderUnsuccessfulPage());
+    if (url === undefined) {
+        res.status(400).send(HtmlRenderer.renderUnsuccessfulPage());
         return;
         // Check if removeAfter parameter was set and is a valid number
-    } else if (!Config.LIFETIMES.includes(removeAfter)) {
-        res.send(HtmlRenderer.renderUnsuccessfulPage());
+    } else if (removeAfter === undefined || !isValidDestroyAfterUse(query.removeAfterRedirect)) {
+        res.status(400).send(HtmlRenderer.renderUnsuccessfulPage());
+        return;
+    } else if (Buffer.byteLength(url, "utf8") > Config.MAX_URL_BYTES) {
+        sendPayloadTooLarge(res);
         return;
     }
 
     // If the removeAfterRedirect checkbox was checked the link will be removed
     // after one successful redirect. If not, the link will stay until its timeout is reached.
-    let removeAfterRedirect = false;
-    if (req.query.removeAfterRedirect === "true") {
-        removeAfterRedirect = true;
-    }
+    const removeAfterRedirect = query.removeAfterRedirect === "true";
 
-    // Generate random string of wanted id length
-    const randomId = generateNewIdAsRandomWord(Config.ID_LENGTH);
+    const stored = storeWithGeneratedId(
+        "",
+        url,
+        StoredType.URL,
+        removeAfter * 60 * 1000,
+        removeAfterRedirect
+    );
+    if (stored.result === StoreResult.CAPACITY) {
+        sendStorageFull(res);
+        return;
+    }
+    const randomId = stored.randomId;
 
     console.log(`/create ${randomId}`);
-
-    // Save id -> url object relation in map
-    // removeAfter is passed to the backend in minutes so we have to convert it to millis
-    // to compare with the current time later
-    storageModule.store(randomId, req.query.url, StoredType.URL, removeAfter * 60 * 1000, removeAfterRedirect);
 
     res.send(HtmlRenderer.renderSuccessfulPage(randomId));
 });
 
-app.post("/text/create", (req, res) => {
-    const content = req.body.content;
-    const removeAfter = parseInt(req.body.removeAfter);
+app.post("/text/create", privatePage, parseForm, (req, res) => {
+    const body = req.body || {};
+    const content = body.content;
+    const removeAfter = parseLifetime(body.removeAfter);
 
-    res.set("Content-Type", "text/html");
+    res.type("html");
 
     // Check if the content parameter was passed
-    if (content === undefined) {
-        res.send(topHtml + `<p>Invalid input!</p>` + bottomHtml);
+    if (typeof content !== "string") {
+        res.status(400).send(HtmlRenderer.renderInvalidInputPage());
         return;
         // Check if removeAfter parameter was set and is a valid number
-    } else if (!Config.LIFETIMES.includes(removeAfter)) {
-        res.send(topHtml + `<p>Invalid input!</p>` + bottomHtml);
+    } else if (removeAfter === undefined || !isValidDestroyAfterUse(body.removeAfterRedirect)) {
+        res.status(400).send(HtmlRenderer.renderInvalidInputPage());
+        return;
+    } else if (Buffer.byteLength(content, "utf8") > Config.MAX_TEXT_BYTES) {
+        sendPayloadTooLarge(res);
         return;
     }
 
     // If the removeAfterRedirect checkbox was checked the link will be removed
     // after one successful redirect. If not, the link will stay until its timeout is reached.
-    let removeAfterOpening = false;
-    if (req.body.removeAfterRedirect === "true") {
-        removeAfterOpening = true;
+    const removeAfterOpening = body.removeAfterRedirect === "true";
+
+    const stored = storeWithGeneratedId(
+        "text/",
+        content,
+        StoredType.Text,
+        removeAfter * 60 * 1000,
+        removeAfterOpening
+    );
+    if (stored.result === StoreResult.CAPACITY) {
+        sendStorageFull(res);
+        return;
     }
-
-    // Generate random string of wanted id length
-    const randomId = generateNewIdAsRandomWord(Config.ID_LENGTH);
-
-    // Save id -> url object relation in map
-    // removeAfter is passed to the backend in minutes so we have to convert it to millis
-    // to compare with the current time later
-    storageModule.store("text/" + randomId, content, StoredType.Text, removeAfter * 60 * 1000, removeAfterOpening);
+    const randomId = stored.randomId;
 
     res.send(HtmlRenderer.renderTextSuccessfulPage("text/" + randomId));
 })
 
-app.get("/text/:id", (req, res) => {
+app.get("/text/create", privatePage, (req, res) => {
+    res.set("Allow", "POST").sendStatus(405);
+});
+
+app.head("/text/:id", privatePage, (req, res) => {
+    res.set("Allow", "GET").sendStatus(405);
+});
+
+app.get("/text/:id", privatePage, (req, res) => {
     const id = "text/" + req.params.id;
 
     // Url object with the passed id
     const storedObject = storageModule.fetch(id);
     if (storedObject === undefined) {
         // Render the invalid id page if the id was not found
-        res.set("Content-Type", "text/html");
-        res.send(HtmlRenderer.renderIdNotFoundPage());
+        res.type("html");
+        res.status(404).send(HtmlRenderer.renderIdNotFoundPage());
     } else {
         // Redirect to target page if it was found
         res.send(
@@ -114,14 +255,14 @@ app.get("/text/:id", (req, res) => {
                </html>`
         );
 
-        // If the removeAftereRedirect boolean is set, the url will be removed after one successful redirect.
+        // If destroyAfterUse is set, the text will be removed after one successful opening.
         if (storedObject.destroyAfterUse) {
             storageModule.remove(id);
         }
     }
 })
 
-app.get("/text", (req, res) => {
+app.get("/text", noIndex, (req, res) => {
     textUploaderVisitsCounter += 1;
     console.log("/text visits: " + textUploaderVisitsCounter);
 
@@ -164,14 +305,14 @@ app.get("/text", (req, res) => {
 
 
 // Try redirect if an url id was passed
-app.get("/:id", (req, res) => {
+app.get("/:id", privatePage, (req, res) => {
         // Url object with the passed id
         const storedObject = storageModule.fetch(req.params.id);
 
         if (storedObject === undefined) {
             // Render the invalid id page if the id was not found
-            res.set("Content-Type", "text/html");
-            res.send(HtmlRenderer.renderIdNotFoundPage());
+            res.type("html");
+            res.status(404).send(HtmlRenderer.renderIdNotFoundPage());
         } else {
             const resolvedUrl = storedObject.content;
             res.set("Content-Type", "text/html");
@@ -180,18 +321,22 @@ app.get("/:id", (req, res) => {
     }
 );
 
-app.get("/:id/use", (req, res) => {
+app.head("/:id/use", privatePage, (req, res) => {
+    res.set("Allow", "GET").sendStatus(405);
+});
+
+app.get("/:id/use", privatePage, (req, res) => {
     // Url object with the passed id
     const storedObject = storageModule.fetch(req.params.id);
     if (storedObject === undefined) {
         // Render the invalid id page if the id was not found
-        res.set("Content-Type", "text/html");
-        res.send(HtmlRenderer.renderIdNotFoundPage());
+        res.type("html");
+        res.status(404).send(HtmlRenderer.renderIdNotFoundPage());
     } else {
         // Redirect to target page if it was found
         res.redirect(storedObject.content);
 
-        // If the removeAftereRedirect boolean is set, the url will be removed after one successful redirect.
+        // If destroyAfterUse is set, the URL will be removed after one successful redirect.
         if (storedObject.destroyAfterUse) {
             storageModule.remove(req.params.id);
         }
@@ -206,6 +351,17 @@ app.get("/", (req, res) => {
     res.set("Content-Type", "text/html");
     res.send(HtmlRenderer.renderStartingPage());
 })
+
+app.use((error, req, res, next) => {
+    if (error.status === 413) {
+        res.set("Cache-Control", "no-store");
+        res.type("html");
+        sendPayloadTooLarge(res);
+        return;
+    }
+
+    next(error);
+});
 
 // Start express application server
 app.listen(Config.PORT, "127.0.0.1", () => {

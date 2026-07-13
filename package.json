@@ -6,7 +6,8 @@
     "build": "babel src -d dist --copy-files",
     "serve": "node dist/main/index.js",
     "start": "npm run build && npm run serve",
-    "start_babel_node": "npx babel-node src/main/index.js"
+    "start_babel_node": "npx babel-node src/main/index.js",
+    "test": "npm run build && node --test test/*.test.cjs"
   },
   "dependencies": {
     "escape-html": "^1.0.3",

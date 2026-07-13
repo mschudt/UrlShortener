@@ -37,6 +37,24 @@ export const renderUnsuccessfulPage = () => {
         + bottomHtml;
 }
 
+export const renderInvalidInputPage = () => {
+    return topHtml
+        + `<p>Invalid input!</p>`
+        + closingHtml;
+}
+
+export const renderServiceUnavailablePage = () => {
+    return topHtml
+        + `<p>The service is temporarily full. Please try again shortly.</p>`
+        + closingHtml;
+}
+
+export const renderPayloadTooLargePage = () => {
+    return topHtml
+        + `<p>Input is too large.</p>`
+        + closingHtml;
+}
+
 export const renderIdNotFoundPage = () => {
     return topHtml
         + `<p>I'm sorry. We could not find that URL.</p>`
